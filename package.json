@@ -1,0 +1,55 @@
+{
+  "name": "smart-identity-autofill",
+  "displayName": "Smart Identity Autofill",
+  "version": "1.0.0",
+  "description": "Production-ready identity profile autofill extension built with Plasmo, React, and Tailwind.",
+  "author": "",
+  "scripts": {
+    "dev": "npm run prepare:icon && plasmo dev",
+    "build": "npm run prepare:icon && plasmo build",
+    "package": "npm run prepare:icon && plasmo package",
+    "prepare:icon": "node scripts/generate-icon.mjs"
+  },
+  "dependencies": {
+    "@plasmohq/storage": "^1.13.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.285",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.47",
+    "plasmo": "0.90.3",
+    "tailwindcss": "3.4.14",
+    "typescript": "5.6.3"
+  },
+  "plasmo": {
+    "manifest": {
+      "name": "Smart Identity Autofill",
+      "description": "Autofill web forms from reusable identity profiles.",
+      "permissions": [
+        "storage"
+      ],
+      "host_permissions": [
+        "<all_urls>"
+      ],
+      "icons": {
+        "16": "assets/icon.png",
+        "32": "assets/icon.png",
+        "48": "assets/icon.png",
+        "128": "assets/icon.png"
+      },
+      "action": {
+        "default_title": "Smart Identity Autofill",
+        "default_icon": {
+          "16": "assets/icon.png",
+          "32": "assets/icon.png",
+          "48": "assets/icon.png",
+          "128": "assets/icon.png"
+        }
+      }
+    }
+  }
+}
