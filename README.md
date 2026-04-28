@@ -11,7 +11,6 @@ Smart Identity Autofill is a fast, lightweight Chrome extension built with **Pla
 - Dynamic learning of new fields and storage for reuse
 - Minimal, Notion-like popup UI
 - Uses only Chrome local storage (no backend)
-- Uses the provided checklist artwork as the extension icon (stored as text-safe base64 and generated to `assets/icon.png`)
 
 ## Folder Structure
 
@@ -22,12 +21,8 @@ smart-identity-autofill/
 ├─ tailwind.config.ts
 ├─ postcss.config.js
 ├─ README.md
-├─ assets/
-│  └─ icon-source.base64        # Text-safe source for provided icon image
-├─ scripts/
-│  └─ generate-icon.mjs         # Rebuilds assets/icon.png from base64 source
 └─ src/
-   ├─ content.js                  # Content script (field detection + autofill trigger)
+   ├─ content.ts                  # Content script (floating button + autofill flow)
    ├─ popup.tsx                   # Popup UI entry
    ├─ style.css                   # Tailwind styles
    ├─ components/
@@ -49,8 +44,6 @@ smart-identity-autofill/
    ```bash
    npm install
    ```
-
-   The icon is generated automatically before `dev/build/package` from `assets/icon-source.base64`.
 
 2. Start development mode:
 

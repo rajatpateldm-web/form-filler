@@ -5,10 +5,9 @@
   "description": "Production-ready identity profile autofill extension built with Plasmo, React, and Tailwind.",
   "author": "",
   "scripts": {
-    "dev": "npm run prepare:icon && plasmo dev",
-    "build": "npm run prepare:icon && plasmo build",
-    "package": "npm run prepare:icon && plasmo package",
-    "prepare:icon": "node scripts/generate-icon.mjs"
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "package": "plasmo package"
   },
   "dependencies": {
     "@plasmohq/storage": "^1.13.1",
@@ -34,22 +33,7 @@
       ],
       "host_permissions": [
         "<all_urls>"
-      ],
-      "icons": {
-        "16": "assets/icon.png",
-        "32": "assets/icon.png",
-        "48": "assets/icon.png",
-        "128": "assets/icon.png"
-      },
-      "action": {
-        "default_title": "Smart Identity Autofill",
-        "default_icon": {
-          "16": "assets/icon.png",
-          "32": "assets/icon.png",
-          "48": "assets/icon.png",
-          "128": "assets/icon.png"
-        }
-      }
+      ]
     }
   }
 }
