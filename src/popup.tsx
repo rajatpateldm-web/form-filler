@@ -1,133 +1,153 @@
 import "~style.css"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 
-import { ProfileCard } from "~components/ProfileCard"
-import { createEmptyProfile, mergeProfileUpdates } from "~lib/profile-utils"
-import { getProfiles, saveProfiles } from "~lib/storage"
-import type { IdentityProfile } from "~types/profiles"
+import { getWritingSettings, saveWritingSettings } from "~lib/storage"
+import {
+  DEFAULT_WRITING_SETTINGS,
+  type WritingSettings,
+  type WritingTone
+} from "~types/writing"
+
+const toneOptions: Array<{
+  label: string
+  value: WritingTone
+  description: string
+}> = [
+  {
+    label: "Clear",
+    value: "clear",
+    description: "Focus on grammar, clarity, and concise wording."
+  },
+  {
+    label: "Friendly",
+    value: "friendly",
+    description: "Suggest softer phrasing for collaborative writing."
+  },
+  {
+    label: "Professional",
+    value: "professional",
+    description: "Polish casual language for workplace communication."
+  }
+]
 
 const Popup = () => {
-  const [profiles, setProfiles] = useState<IdentityProfile[]>([])
+  const [settings, setSettings] = useState<WritingSettings>(DEFAULT_WRITING_SETTINGS)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     ;(async () => {
       try {
-        const data = await getProfiles()
-        setProfiles(data)
+        setSettings(await getWritingSettings())
       } catch (err) {
         console.error(err)
-        setError("Unable to load profiles")
+        setError("Unable to load writing settings")
       } finally {
         setIsLoading(false)
       }
     })()
   }, [])
 
-  const canSave = useMemo(() => profiles.length > 0 && !isSaving, [profiles, isSaving])
-
-  const updateProfile = (profileId: string, updates: Partial<IdentityProfile>) => {
-    setProfiles((current) =>
-      current.map((profile) =>
-        profile.id === profileId ? mergeProfileUpdates(profile, updates) : profile
-      )
-    )
-  }
-
-  const handleSave = async () => {
+  const persist = async (next: WritingSettings) => {
+    setSettings(next)
     setError(null)
+    setStatus(null)
     setIsSaving(true)
 
     try {
-      await saveProfiles(profiles)
+      await saveWritingSettings(next)
+      setStatus("Settings saved. Refresh open tabs if the toolbar does not update immediately.")
     } catch (err) {
       console.error(err)
-      setError("Failed to save your updates")
+      setError("Failed to save your settings")
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
-    <main className="min-h-screen w-[420px] bg-slate-50 p-4">
-      <header className="mb-4">
-        <h1 className="text-lg font-semibold">Smart Identity Autofill</h1>
-        <p className="text-xs text-slate-500">Manage reusable identity profiles for one-click form filling.</p>
+    <main className="min-h-screen w-[420px] bg-slate-50 p-4 text-slate-900">
+      <header className="mb-4 rounded-2xl bg-gradient-to-br from-indigo-950 to-violet-800 p-4 text-white shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-100">Writing Coach</p>
+        <h1 className="mt-1 text-xl font-bold">Grammar and sentence improvement</h1>
+        <p className="mt-2 text-sm leading-5 text-indigo-100">
+          Works in Chrome and Firefox on text boxes, textareas, and rich-text editors. Suggestions run locally in your browser.
+        </p>
       </header>
 
       {isLoading ? (
-        <p className="text-sm text-slate-500">Loading profiles…</p>
+        <p className="text-sm text-slate-500">Loading settings…</p>
       ) : (
-        <section className="space-y-3">
-          {profiles.map((profile) => (
-            <ProfileCard
-              key={profile.id}
-              profile={profile}
-              onChange={(profileId, field, value) =>
-                updateProfile(profileId, { [field]: value } as Partial<IdentityProfile>)
-              }
-              onCustomChange={(profileId, key, value) => {
-                const existing = profiles.find((profile) => profile.id === profileId)
-                if (!existing) {
-                  return
-                }
+        <section className="space-y-4">
+          <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 className="text-sm font-semibold">Suggestion tone</h2>
+            <div className="mt-3 space-y-2">
+              {toneOptions.map((option) => (
+                <label
+                  key={option.value}
+                  className="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-indigo-200 hover:bg-indigo-50/40">
+                  <input
+                    type="radio"
+                    name="tone"
+                    value={option.value}
+                    checked={settings.tone === option.value}
+                    onChange={() => persist({ ...settings, tone: option.value })}
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold text-slate-900">{option.label}</span>
+                    <span className="block text-xs leading-5 text-slate-500">{option.description}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </article>
 
-                updateProfile(profileId, {
-                  customFields: {
-                    ...existing.customFields,
-                    [key]: value
-                  }
-                })
-              }}
-              onAddCustomField={(profileId) => {
-                const fieldName = window.prompt("Enter custom field key (e.g. company, website)")
-                if (!fieldName) {
-                  return
-                }
+          <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 className="text-sm font-semibold">Browser behavior</h2>
+            <div className="mt-3 space-y-3">
+              <label className="flex items-start justify-between gap-3">
+                <span>
+                  <span className="block text-sm font-medium">Auto-scan while typing</span>
+                  <span className="block text-xs leading-5 text-slate-500">Refresh suggestions shortly after you edit text.</span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={settings.autoScan}
+                  onChange={(event) => persist({ ...settings, autoScan: event.target.checked })}
+                  className="mt-1"
+                />
+              </label>
 
-                const sanitized = fieldName.trim().toLowerCase().replace(/\s+/g, "_")
-                if (!sanitized) {
-                  return
-                }
+              <label className="flex items-start justify-between gap-3">
+                <span>
+                  <span className="block text-sm font-medium">Show floating toolbar</span>
+                  <span className="block text-xs leading-5 text-slate-500">Display the Improve button when your cursor is in an editable field.</span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={settings.showFloatingButton}
+                  onChange={(event) => persist({ ...settings, showFloatingButton: event.target.checked })}
+                  className="mt-1"
+                />
+              </label>
+            </div>
+          </article>
 
-                const existing = profiles.find((profile) => profile.id === profileId)
-                if (!existing) {
-                  return
-                }
-
-                updateProfile(profileId, {
-                  customFields: {
-                    ...existing.customFields,
-                    [sanitized]: existing.customFields[sanitized] ?? ""
-                  }
-                })
-              }}
-            />
-          ))}
+          <article className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
+            <strong>How to use:</strong> click into any writing field, press <span className="font-semibold">✍️ Improve</span>, review grammar,
+            clarity, style, and tone suggestions, then apply one change or all changes.
+          </article>
         </section>
       )}
 
-      <footer className="sticky bottom-0 mt-4 border-t border-slate-200 bg-slate-50 pt-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setProfiles((current) => [...current, createEmptyProfile(`Profile ${current.length + 1}`)])}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white">
-            + New profile
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={!canSave}
-            className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">
-            {isSaving ? "Saving…" : "Save changes"}
-          </button>
-        </div>
-
-        {error ? <p className="mt-2 text-xs text-red-600">{error}</p> : null}
+      <footer className="mt-4 min-h-5 text-xs">
+        {isSaving ? <p className="text-slate-500">Saving…</p> : null}
+        {status ? <p className="text-emerald-700">{status}</p> : null}
+        {error ? <p className="text-red-600">{error}</p> : null}
       </footer>
     </main>
   )
