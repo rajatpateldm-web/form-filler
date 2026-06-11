@@ -1,40 +1,36 @@
-# Smart Identity Autofill (Plasmo Chrome Extension)
+# Writing Coach Grammar Tool
 
-Smart Identity Autofill is a fast, lightweight Chrome extension built with **Plasmo + React + Tailwind CSS**. It lets users manage multiple identity profiles and autofill form fields with one click.
+Writing Coach Grammar Tool is a lightweight browser extension built with **Plasmo + React + Tailwind CSS**. It helps users fine-tune writing directly in editable fields across the web by suggesting grammar, clarity, style, and tone improvements.
 
 ## Features
 
-- Multiple profiles out of the box: **Personal**, **Work**, **Freelance**
-- Profile fields: `name`, `email`, `phone`, `address`, plus unlimited custom fields
-- Floating autofill button on pages with forms
-- One-click profile selection and smart field mapping
-- Dynamic learning of new fields and storage for reuse
-- Minimal, Notion-like popup UI
-- Uses only Chrome local storage (no backend)
+- Works in Chrome and Firefox through Plasmo browser targets.
+- Floating **✍️ Improve** button appears when the user focuses a text input, textarea, or rich-text editor.
+- Local, rule-based suggestions for grammar agreement, article choice, repeated words, spacing, capitalization, wordiness, filler words, and tone.
+- One-click application for individual suggestions or all suggestions at once.
+- Popup settings for suggestion tone: **Clear**, **Friendly**, or **Professional**.
+- Optional auto-scan while typing and optional floating toolbar visibility.
+- Uses browser local storage only; no backend or remote writing service is required.
 
 ## Folder Structure
 
 ```text
-smart-identity-autofill/
+writing-coach-grammar-tool/
 ├─ package.json
 ├─ tsconfig.json
 ├─ tailwind.config.ts
 ├─ postcss.config.js
 ├─ README.md
 └─ src/
-   ├─ content.ts                  # Content script (floating button + autofill flow)
-   ├─ popup.tsx                   # Popup UI entry
+   ├─ content.ts                  # Content script for editable-field detection and suggestions UI
+   ├─ popup.tsx                   # Extension popup settings UI
    ├─ style.css                   # Tailwind styles
-   ├─ components/
-   │  └─ ProfileCard.tsx          # Profile editor card
    ├─ lib/
-   │  ├─ autofill.ts              # Autofill + dynamic field capture
-   │  ├─ constants.ts             # Storage key + field matchers
-   │  ├─ form-detection.ts        # Input detection and key inference
-   │  ├─ profile-utils.ts         # Profile creation/merge helpers
-   │  └─ storage.ts               # Chrome storage abstraction
+   │  ├─ constants.ts             # Storage key and editable input types
+   │  ├─ grammar.ts               # Local grammar, clarity, style, and tone analyzer
+   │  └─ storage.ts               # Browser local storage abstraction
    └─ types/
-      └─ profiles.ts              # Shared TypeScript types
+      └─ writing.ts               # Shared settings and suggestion types
 ```
 
 ## Setup
@@ -57,7 +53,14 @@ smart-identity-autofill/
    npm run build
    ```
 
-4. Package extension ZIP (optional):
+4. Build browser-specific bundles:
+
+   ```bash
+   npm run build:chrome
+   npm run build:firefox
+   ```
+
+5. Package extension ZIP (optional):
 
    ```bash
    npm run package
@@ -66,22 +69,25 @@ smart-identity-autofill/
 ## Load Extension in Chrome
 
 1. Open Chrome and go to `chrome://extensions`.
-2. Enable **Developer mode** (top-right).
+2. Enable **Developer mode**.
 3. Click **Load unpacked**.
-4. Select the generated build folder:
-   - For dev: `.plasmo/chrome-mv3-dev`
-   - For production build: `build/chrome-mv3-prod`
+4. Select the generated Chrome build folder, such as `build/chrome-mv3-prod`.
+
+## Load Extension in Firefox
+
+1. Build the Firefox target with `npm run build:firefox`.
+2. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on**.
+4. Select the generated manifest from the Firefox build folder.
 
 ## Usage
 
-1. Click extension icon → manage profiles in popup.
-2. Visit any page with forms.
-3. Click floating **⚡ Autofill** button.
-4. Select a profile to fill detected fields.
-5. As you type unknown fields, extension learns and stores them under custom fields for the selected profile.
+1. Click the extension icon and choose a preferred writing tone.
+2. Visit any page with an editable field.
+3. Click into the field and press **✍️ Improve**.
+4. Review suggestions and apply a single improvement or **Apply all**.
+5. Continue typing; when auto-scan is enabled, suggestions refresh as the text changes.
 
-## Error Handling
+## Privacy
 
-- Storage operations are wrapped with try/catch.
-- Autofill and dynamic save logic fail gracefully with console diagnostics.
-- UI shows actionable fallback text when profiles are unavailable.
+All suggestions are generated locally by deterministic rules in the content script. The extension stores only user settings in browser local storage.

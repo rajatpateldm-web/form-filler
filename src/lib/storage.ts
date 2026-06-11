@@ -1,45 +1,32 @@
 import { Storage } from "@plasmohq/storage"
 
 import { STORAGE_KEY } from "~lib/constants"
-import { createDefaultProfiles } from "~lib/profile-utils"
-import type { IdentityProfile } from "~types/profiles"
+import {
+  DEFAULT_WRITING_SETTINGS,
+  type WritingSettings
+} from "~types/writing"
 
 const storage = new Storage({ area: "local" })
 
-export const getProfiles = async (): Promise<IdentityProfile[]> => {
+export const getWritingSettings = async (): Promise<WritingSettings> => {
   try {
-    const stored = await storage.get<IdentityProfile[]>(STORAGE_KEY)
+    const stored = await storage.get<Partial<WritingSettings>>(STORAGE_KEY)
 
-    if (!stored || !Array.isArray(stored) || stored.length === 0) {
-      const defaults = createDefaultProfiles()
-      await storage.set(STORAGE_KEY, defaults)
-      return defaults
+    return {
+      ...DEFAULT_WRITING_SETTINGS,
+      ...(stored ?? {})
     }
-
-    return stored
   } catch (error) {
-    console.error("[Smart Identity Autofill] Failed to load profiles", error)
-    return createDefaultProfiles()
+    console.error("[Writing Coach] Failed to load settings", error)
+    return DEFAULT_WRITING_SETTINGS
   }
 }
 
-export const saveProfiles = async (profiles: IdentityProfile[]): Promise<void> => {
+export const saveWritingSettings = async (settings: WritingSettings): Promise<void> => {
   try {
-    await storage.set(STORAGE_KEY, profiles)
+    await storage.set(STORAGE_KEY, settings)
   } catch (error) {
-    console.error("[Smart Identity Autofill] Failed to save profiles", error)
-    throw new Error("Unable to save identity profiles")
+    console.error("[Writing Coach] Failed to save settings", error)
+    throw new Error("Unable to save writing settings")
   }
-}
-
-export const updateProfileById = async (
-  profileId: string,
-  updater: (profile: IdentityProfile) => IdentityProfile
-): Promise<IdentityProfile[]> => {
-  const profiles = await getProfiles()
-  const next = profiles.map((profile) =>
-    profile.id === profileId ? updater(profile) : profile
-  )
-  await saveProfiles(next)
-  return next
 }

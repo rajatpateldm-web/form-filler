@@ -1,13 +1,15 @@
 {
-  "name": "smart-identity-autofill",
-  "displayName": "Smart Identity Autofill",
+  "name": "writing-coach-grammar-tool",
+  "displayName": "Writing Coach Grammar Tool",
   "version": "1.0.0",
-  "description": "Production-ready identity profile autofill extension built with Plasmo, React, and Tailwind.",
+  "description": "Chrome and Firefox writing assistant that suggests grammar, clarity, style, and tone improvements locally.",
   "author": "",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",
-    "package": "plasmo package"
+    "package": "plasmo package",
+    "build:chrome": "plasmo build --target=chrome-mv3",
+    "build:firefox": "plasmo build --target=firefox-mv2"
   },
   "dependencies": {
     "@plasmohq/storage": "^1.13.1",
@@ -26,8 +28,8 @@
   },
   "plasmo": {
     "manifest": {
-      "name": "Smart Identity Autofill",
-      "description": "Autofill web forms from reusable identity profiles.",
+      "name": "Writing Coach Grammar Tool",
+      "description": "Improve grammar, clarity, style, and tone in editable fields across the web.",
       "permissions": [
         "storage"
       ],
