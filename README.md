@@ -1,87 +1,190 @@
-# Smart Identity Autofill (Plasmo Chrome Extension)
+# Writing Coach Grammar Tool
 
-Smart Identity Autofill is a fast, lightweight Chrome extension built with **Plasmo + React + Tailwind CSS**. It lets users manage multiple identity profiles and autofill form fields with one click.
+Writing Coach Grammar Tool is a browser extension that helps improve writing in text boxes, textareas, and rich-text editors across the web. It highlights common grammar, clarity, style, and tone issues, then lets you apply each suggestion individually or all suggestions at once.
 
-## Features
+The extension is built with **Plasmo**, **React**, **TypeScript**, and **Tailwind CSS**, and can be built for both **Chrome** and **Firefox**.
 
-- Multiple profiles out of the box: **Personal**, **Work**, **Freelance**
-- Profile fields: `name`, `email`, `phone`, `address`, plus unlimited custom fields
-- Floating autofill button on pages with forms
-- One-click profile selection and smart field mapping
-- Dynamic learning of new fields and storage for reuse
-- Minimal, Notion-like popup UI
-- Uses only Chrome local storage (no backend)
+## What It Does
 
-## Folder Structure
+- Finds common grammar issues such as subject/verb agreement, article usage, repeated words, capitalization, and punctuation spacing.
+- Suggests shorter alternatives for wordy phrases like “in order to” or “due to the fact that.”
+- Helps remove filler words that weaken sentences.
+- Offers tone-specific suggestions for **Clear**, **Friendly**, and **Professional** writing.
+- Shows a floating **✍️ Improve** button only when your cursor is in an editable writing field.
+- Runs locally in the browser and stores only extension settings in local browser storage.
 
-```text
-smart-identity-autofill/
-├─ package.json
-├─ tsconfig.json
-├─ tailwind.config.ts
-├─ postcss.config.js
-├─ README.md
-└─ src/
-   ├─ content.ts                  # Content script (floating button + autofill flow)
-   ├─ popup.tsx                   # Popup UI entry
-   ├─ style.css                   # Tailwind styles
-   ├─ components/
-   │  └─ ProfileCard.tsx          # Profile editor card
-   ├─ lib/
-   │  ├─ autofill.ts              # Autofill + dynamic field capture
-   │  ├─ constants.ts             # Storage key + field matchers
-   │  ├─ form-detection.ts        # Input detection and key inference
-   │  ├─ profile-utils.ts         # Profile creation/merge helpers
-   │  └─ storage.ts               # Chrome storage abstraction
-   └─ types/
-      └─ profiles.ts              # Shared TypeScript types
+## Requirements
+
+Before installing from source, make sure you have:
+
+- [Node.js](https://nodejs.org/) installed. The project is intended for a modern Node.js LTS release.
+- npm, which is included with Node.js.
+- Chrome, Chromium, Edge, or another Chromium-based browser for Chrome testing.
+- Firefox for Firefox testing.
+
+## Install From Source
+
+Clone the repository and install dependencies:
+
+```bash
+git clone <repository-url>
+cd form-filler
+npm install
 ```
 
-## Setup
+> Replace `<repository-url>` with the URL of this repository.
 
-1. Install dependencies:
+## Run During Development
+
+Start Plasmo development mode:
+
+```bash
+npm run dev
+```
+
+Plasmo will generate a development extension bundle under `.plasmo/`. Keep this command running while you make changes.
+
+## Build the Extension
+
+Build a production bundle:
+
+```bash
+npm run build
+```
+
+Build browser-specific bundles:
+
+```bash
+npm run build:chrome
+npm run build:firefox
+```
+
+Package the extension into a distributable archive:
+
+```bash
+npm run package
+```
+
+## Install in Chrome or Chromium Browsers
+
+1. Build the Chrome extension:
 
    ```bash
-   npm install
+   npm run build:chrome
    ```
 
-2. Start development mode:
+2. Open Chrome and go to `chrome://extensions`.
+3. Enable **Developer mode** in the top-right corner.
+4. Click **Load unpacked**.
+5. Select the generated Chrome build folder, typically:
+
+   ```text
+   build/chrome-mv3-prod
+   ```
+
+6. Pin the extension from the browser toolbar if you want quick access to settings.
+
+## Install in Firefox
+
+1. Build the Firefox extension:
 
    ```bash
-   npm run dev
+   npm run build:firefox
    ```
 
-3. Build production extension:
+2. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on**.
+4. Select the generated Firefox manifest file from the Firefox build folder, typically under:
 
-   ```bash
-   npm run build
+   ```text
+   build/firefox-mv2-prod
    ```
 
-4. Package extension ZIP (optional):
+5. Firefox will load the extension temporarily. For regular use, package and sign the extension through Mozilla Add-ons.
 
-   ```bash
-   npm run package
-   ```
+## How to Use the Writing Coach
 
-## Load Extension in Chrome
+1. Open a website with a text field, textarea, or rich-text editor.
+2. Click into the field where you are writing.
+3. Click the floating **✍️ Improve** button in the lower-right corner.
+4. Review the suggestions in the Writing Coach panel.
+5. Choose one of the following actions:
+   - Click **Apply** on a single suggestion to update only that issue.
+   - Click **Apply all** to accept every current suggestion.
+   - Click **Rescan** after editing text manually.
+6. Continue writing. If auto-scan is enabled, suggestions refresh shortly after you type.
 
-1. Open Chrome and go to `chrome://extensions`.
-2. Enable **Developer mode** (top-right).
-3. Click **Load unpacked**.
-4. Select the generated build folder:
-   - For dev: `.plasmo/chrome-mv3-dev`
-   - For production build: `build/chrome-mv3-prod`
+## Configure Settings
 
-## Usage
+Click the extension icon in your browser toolbar to open settings.
 
-1. Click extension icon → manage profiles in popup.
-2. Visit any page with forms.
-3. Click floating **⚡ Autofill** button.
-4. Select a profile to fill detected fields.
-5. As you type unknown fields, extension learns and stores them under custom fields for the selected profile.
+### Suggestion Tone
 
-## Error Handling
+Choose the writing tone that best matches your use case:
 
-- Storage operations are wrapped with try/catch.
-- Autofill and dynamic save logic fail gracefully with console diagnostics.
-- UI shows actionable fallback text when profiles are unavailable.
+- **Clear**: focuses on grammar, clarity, and concise wording.
+- **Friendly**: suggests softer phrasing for collaborative writing.
+- **Professional**: polishes casual wording for workplace communication.
+
+### Browser Behavior
+
+You can also control:
+
+- **Auto-scan while typing**: refreshes suggestions shortly after you edit text.
+- **Show floating toolbar**: shows or hides the **✍️ Improve** button when writing fields are focused.
+
+If settings do not apply to an already-open page immediately, refresh that page.
+
+## Privacy
+
+Writing suggestions are generated by local rules inside the browser content script. The extension does not send your writing to a remote server. It stores only your settings, such as selected tone and toolbar behavior, in browser local storage.
+
+## Troubleshooting
+
+### The Improve Button Does Not Appear
+
+- Click directly inside a text input, textarea, or rich-text editor.
+- Check that **Show floating toolbar** is enabled in the popup settings.
+- Refresh the page after changing extension settings.
+- Make sure the extension is enabled in your browser extension manager.
+
+### Suggestions Do Not Update While Typing
+
+- Open the popup and make sure **Auto-scan while typing** is enabled.
+- Click **Rescan** in the Writing Coach panel.
+- Refresh the page if you changed settings while the page was already open.
+
+### Firefox Loads the Extension Temporarily Only
+
+Firefox temporary add-ons are removed when Firefox restarts. For persistent installation, package the extension and submit it for signing through Mozilla Add-ons.
+
+## Project Structure
+
+```text
+form-filler/
+├─ package.json                  # npm scripts, extension metadata, dependencies
+├─ README.md                     # install and usage guide
+├─ src/
+│  ├─ content.ts                 # floating Writing Coach UI injected into web pages
+│  ├─ popup.tsx                  # extension settings popup
+│  ├─ style.css                  # Tailwind entry stylesheet
+│  ├─ lib/
+│  │  ├─ constants.ts            # storage key and supported editable input types
+│  │  ├─ grammar.ts              # local grammar, clarity, style, and tone rules
+│  │  └─ storage.ts              # settings persistence helper
+│  └─ types/
+│     └─ writing.ts              # shared TypeScript types and default settings
+├─ tailwind.config.ts
+├─ postcss.config.js
+└─ tsconfig.json
+```
+
+## Available Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start Plasmo development mode. |
+| `npm run build` | Build the default production extension target. |
+| `npm run build:chrome` | Build a Chrome Manifest V3 bundle. |
+| `npm run build:firefox` | Build a Firefox bundle. |
+| `npm run package` | Package the extension for distribution. |
